@@ -676,4 +676,5 @@ print("C(s) = ", C2)
 ct.gangof4(P, C1, np.logspace(-1, 3, 100))
 ct.gangof4(P, C2, np.logspace(-1, 3, 100))
 
+# show the picture
 plt.show()
