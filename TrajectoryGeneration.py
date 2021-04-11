@@ -5,59 +5,56 @@ import control.optimal as opt
 ct.use_fbs_defaults()
 
 
-# ## Vehicle steering dynamics (Example 3.11)
+# # ## Vehicle steering dynamics
+# # #
+# # The vehicle dynamics are given by a simple bicycle model.  We take the state of the system as $(x, y, \theta)$ where $(x, y)$ is the position of the reference point of the vehicle in the plane and $\theta$ is the angle of the vehicle with respect to horizontal.  The vehicle input is given by $(v, \delta)$ where $v$ is the forward velocity of the vehicle and $\delta$ is the angle of the steering wheel.  We take as parameters the wheelbase $b$ and the offset $a$ between the rear wheels and the reference point. The model includes saturation of the vehicle steering angle (`maxsteer`).
+# #
+# # * System state: `x`, `y`, `theta`
+# # * System input: `v`, `delta`
+# # * System output: `x`, `y`
+# # * System parameters: `wheelbase`, `refoffset`, `maxsteer`
+# #
+# # Assuming no slipping of the wheels, the motion of the vehicle is given by a rotation around a point O that depends on the steering angle $\delta$.  To compute the angle $\alpha$ of the velocity of the reference point with respect to the axis of the vehicle, we let the distance from the center of rotation O to the contact point of the rear wheel be $r_\text{r}$ and it the follows from Figure 3.17 in FBS that $b = r_\text{r} \tan \delta$ and $a = r_\text{r} \tan \alpha$, which implies that $\tan \alpha = (a/b) \tan \delta$.
+# #
+# # Reasonable limits for the steering angle depend on the speed.  The physical limit is given in our model as 0.5 radians (about 30 degrees).  However, this limit is rarely possible when the car is driving since it would cause the tires to slide on the pavement.  We us a limit of 0.1 radians (about 6 degrees) at 10 m/s ($\approx$ 35 kph) and 0.05 radians (about 3 degrees) at 30 m/s ($\approx$ 110 kph).  Note that a steering angle of 0.05 rad  gives a cross acceleration of $(v^2/b) \tan \delta \approx (100/3) 0.05 = 1.7$ $\text{m/s}^2$ at 10 m/s and 15 $\text{m/s}^2$ at 30 m/s ($\approx$ 1.5 times the force of gravity).
 #
-# The vehicle dynamics are given by a simple bicycle model.  We take the state of the system as $(x, y, \theta)$ where $(x, y)$ is the position of the reference point of the vehicle in the plane and $\theta$ is the angle of the vehicle with respect to horizontal.  The vehicle input is given by $(v, \delta)$ where $v$ is the forward velocity of the vehicle and $\delta$ is the angle of the steering wheel.  We take as parameters the wheelbase $b$ and the offset $a$ between the rear wheels and the reference point. The model includes saturation of the vehicle steering angle (`maxsteer`).
 #
-# * System state: `x`, `y`, `theta`
-# * System input: `v`, `delta`
-# * System output: `x`, `y`
-# * System parameters: `wheelbase`, `refoffset`, `maxsteer`
+# def vehicle_update(t, x, u, params):
+#     # Get the parameters for the model
+#     a = params.get('refoffset', 1.5)        # offset to vehicle reference point
+#     b = params.get('wheelbase', 3.)         # vehicle wheelbase
+#     maxsteer = params.get('maxsteer', 0.5)  # max steering angle (rad)
 #
-# Assuming no slipping of the wheels, the motion of the vehicle is given by a rotation around a point O that depends on the steering angle $\delta$.  To compute the angle $\alpha$ of the velocity of the reference point with respect to the axis of the vehicle, we let the distance from the center of rotation O to the contact point of the rear wheel be $r_\text{r}$ and it the follows from Figure 3.17 in FBS that $b = r_\text{r} \tan \delta$ and $a = r_\text{r} \tan \alpha$, which implies that $\tan \alpha = (a/b) \tan \delta$.
+#     # Saturate the steering input
+#     delta = np.clip(u[1], -maxsteer, maxsteer)
+#     alpha = np.arctan2(a * np.tan(delta), b)
 #
-# Reasonable limits for the steering angle depend on the speed.  The physical limit is given in our model as 0.5 radians (about 30 degrees).  However, this limit is rarely possible when the car is driving since it would cause the tires to slide on the pavement.  We us a limit of 0.1 radians (about 6 degrees) at 10 m/s ($\approx$ 35 kph) and 0.05 radians (about 3 degrees) at 30 m/s ($\approx$ 110 kph).  Note that a steering angle of 0.05 rad  gives a cross acceleration of $(v^2/b) \tan \delta \approx (100/3) 0.05 = 1.7$ $\text{m/s}^2$ at 10 m/s and 15 $\text{m/s}^2$ at 30 m/s ($\approx$ 1.5 times the force of gravity).
-
-# In[19]:
-
-
-def vehicle_update(t, x, u, params):
-    # Get the parameters for the model
-    a = params.get('refoffset', 1.5)        # offset to vehicle reference point
-    b = params.get('wheelbase', 3.)         # vehicle wheelbase
-    maxsteer = params.get('maxsteer', 0.5)  # max steering angle (rad)
-
-    # Saturate the steering input
-    delta = np.clip(u[1], -maxsteer, maxsteer)
-    alpha = np.arctan2(a * np.tan(delta), b)
-
-    # Return the derivative of the state
-    return np.array([
-        u[0] * np.cos(x[2] + alpha),    # xdot = cos(theta + alpha) v
-        u[0] * np.sin(x[2] + alpha),    # ydot = sin(theta + alpha) v
-        (u[0] / b) * np.tan(delta)      # thdot = v/l tan(phi)
-    ])
-
-def vehicle_output(t, x, u, params):
-    return x[0:2]
-
-# Default vehicle parameters (including nominal velocity)
-vehicle_params={'refoffset': 1.5, 'wheelbase': 3, 'velocity': 15,
-                'maxsteer': 0.5}
-
-# Define the vehicle steering dynamics as an input/output system
-vehicle = ct.NonlinearIOSystem(
-    vehicle_update, vehicle_output, states=3, name='vehicle',
-    inputs=('v', 'delta'), outputs=('x', 'y'), params=vehicle_params)
+#     # Return the derivative of the state
+#     return np.array([
+#         u[0] * np.cos(x[2] + alpha),    # xdot = cos(theta + alpha) v
+#         u[0] * np.sin(x[2] + alpha),    # ydot = sin(theta + alpha) v
+#         (u[0] / b) * np.tan(delta)      # thdot = v/l tan(phi)
+#     ])
+#
+# def vehicle_output(t, x, u, params):
+#     return x[0:2]
+#
+# # Default vehicle parameters (including nominal velocity)
+# vehicle_params={'refoffset': 1.5, 'wheelbase': 3, 'velocity': 15,
+#                 'maxsteer': 0.5}
+#
+# # Define the vehicle steering dynamics as an input/output system
+# vehicle = ct.NonlinearIOSystem(
+#     vehicle_update, vehicle_output, states=3, name='vehicle',
+#     inputs=('v', 'delta'), outputs=('x', 'y'), params=vehicle_params)
+#
 
 
-
-
-
-
+# 在前例的基础上衍生出
 import control.flatsys as fs
 
 
+# another dynamics model
 # Function to take states, inputs and return the flat flag
 def vehicle_flat_forward(x, u, params={}):
     # Get the parameter values
@@ -108,7 +105,6 @@ def vehicle_flat_reverse(zflag, params={}):
 
 vehicle_flat = fs.FlatSystem(vehicle_flat_forward, vehicle_flat_reverse, inputs=2, states=3)
 
-
 # In[ ]:
 
 
@@ -154,8 +150,10 @@ def plot_vehicle_lanechange(traj):
     plt.ylabel('$\delta$ [rad]')
     plt.tight_layout()
 
-
-# To find a trajectory from an initial state $x_0$ to a final state $x_\text{f}$ in time $T_\text{f}$ we solve a point-to-point trajectory generation problem.  We also set the initial and final inputs, which sets the vehicle velocity $v$ and steering wheel angle $\delta$ at the endpoints.
+#
+# To find a trajectory from an initial state $x_0$ to a final state $x_\text{f}$ in time $T_\text{f}$ we solve a
+# point-to-point trajectory generation problem.  We also set the initial and final inputs, which sets the vehicle
+# velocity $v$ and steering wheel angle $\delta$ at the endpoints.
 
 # In[ ]:
 
@@ -174,20 +172,21 @@ poly = fs.PolyFamily(8)
 traj1 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=poly)
 plot_vehicle_lanechange(traj1)
 
-# ### Change of basis function
+#
+#
+#
 
-# In[ ]:
-
-
+# ## Change of basis function
+# ##
 bezier = fs.BezierFamily(8)
 traj2 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=bezier)
 plot_vehicle_lanechange(traj2)
 
+#
+#
+
 # ###  Added cost function
-
-# In[ ]:
-
-
+# ###
 timepts = np.linspace(0, Tf, 12)
 poly = fs.PolyFamily(8)
 traj_cost = opt.quadratic_cost(
