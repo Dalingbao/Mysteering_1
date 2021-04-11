@@ -149,7 +149,7 @@ def plot_vehicle_lanechange(traj):
     # plt.axis([0, t[-1], u0[0] - 1, uf[0] + 1])
 
     plt.subplot(2, 4, 8)
-    plt.plot(t, u[1]);
+    plt.plot(t, u[1])
     plt.xlabel('Time t [sec]')
     plt.ylabel('$\delta$ [rad]')
     plt.tight_layout()
@@ -161,9 +161,9 @@ def plot_vehicle_lanechange(traj):
 
 
 # Define the endpoints of the trajectory
-x0 = [0., 2., 0.];
+x0 = [0., 2., 0.]
 u0 = [15, 0.]
-xf = [75, -2., 0.];
+xf = [75, -2., 0.]
 uf = [15, 0.]
 Tf = xf[0] / uf[0]
 
