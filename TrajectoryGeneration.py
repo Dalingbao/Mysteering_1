@@ -147,7 +147,7 @@ def plot_vehicle_lanechange(traj):
     plt.subplot(2, 4, 8)
     plt.plot(t, u[1])
     plt.xlabel('Time t [sec]')
-    plt.ylabel('$\delta$ [rad]')
+    plt.ylabel('$r\delta$ [rad]')
     plt.tight_layout()
 
 #
