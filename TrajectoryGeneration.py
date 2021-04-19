@@ -54,19 +54,19 @@ def vehicle_flat_forward(x, u, params={}):
     zflag = [np.zeros(3), np.zeros(3)]
 
     # Flat output is the x, y position of the rear wheels
-    zflag[0][0] = x[0]
-    zflag[1][0] = x[1]
+    zflag[0][0] = x[0]  # x position
+    zflag[1][0] = x[1]  # y position
 
     # First derivatives of the flat output
-    zflag[0][1] = u[0] * np.cos(x[2])  # dx/dt
+    zflag[0][1] = u[0] * np.cos(x[2])  # dx/dt  u[0]=v  x[2]=theta
     zflag[1][1] = u[0] * np.sin(x[2])  # dy/dt
 
     # First derivative of the angle
-    thdot = (u[0] / b) * np.tan(u[1])
+    thdot = (u[0] / b) * np.tan(u[1])  # thetadot  u[1]=delta
 
     # Second derivatives of the flat output (setting vdot = 0)
-    zflag[0][2] = -u[0] * thdot * np.sin(x[2])
-    zflag[1][2] = u[0] * thdot * np.cos(x[2])
+    zflag[0][2] = -u[0] * thdot * np.sin(x[2])  # d2x/dt2
+    zflag[1][2] = u[0] * thdot * np.cos(x[2])  # d2y/dt2
 
     return zflag
 
@@ -83,16 +83,17 @@ def vehicle_flat_reverse(zflag, params={}):
     # Given the flat variables, solve for the state
     x[0] = zflag[0][0]  # x position
     x[1] = zflag[1][0]  # y position
-    x[2] = np.arctan2(zflag[1][1], zflag[0][1])  # tan(theta) = ydot/xdot
+    x[2] = np.arctan2(zflag[1][1], zflag[0][1])  # tan(theta) = ydot/xdot        get theta
 
     # And next solve for the inputs
-    u[0] = zflag[0][1] * np.cos(x[2]) + zflag[1][1] * np.sin(x[2])
-    thdot_v = zflag[1][2] * np.cos(x[2]) - zflag[0][2] * np.sin(x[2])
-    u[1] = np.arctan2(thdot_v, u[0] ** 2 / b)
+    u[0] = zflag[0][1] * np.cos(x[2]) + zflag[1][1] * np.sin(x[2])  # get v
+    thdot_v = zflag[1][2] * np.cos(x[2]) - zflag[0][2] * np.sin(x[2])  # get thetadot*v
+    u[1] = np.arctan2(thdot_v, u[0] ** 2 / b)  # get delta
 
     return x, u
 
 
+# 创建FlatSystem对象
 vehicle_flat = fs.FlatSystem(vehicle_flat_forward, vehicle_flat_reverse, inputs=2, states=3)
 
 # In[ ]:
@@ -101,8 +102,8 @@ vehicle_flat = fs.FlatSystem(vehicle_flat_forward, vehicle_flat_reverse, inputs=
 # Utility function to plot lane change trajectory
 def plot_vehicle_lanechange(traj):
     # Create the trajectory
-    t = np.linspace(0, Tf, 100)
-    x, u = traj.eval(t)
+    t = np.linspace(0, Tf, 100)  # 等差数列 样本数据量100，0-Tf
+    x, u = traj.eval(t)  # 评估子函数
 
     # Configure matplotlib plots to be a bit bigger and optimize layout
     plt.figure(figsize=[9, 4.5])
@@ -120,7 +121,7 @@ def plot_vehicle_lanechange(traj):
     plt.axis([-10, 10, -5, x[0, -1] + 5])
 
     # Time traces of the state and input
-    plt.subplot(2, 4, 3)
+    plt.subplot(2, 4, 3)  #2行3列用索引3
     plt.plot(t, x[1])
     plt.ylabel('y [m]')
 
@@ -138,7 +139,7 @@ def plot_vehicle_lanechange(traj):
     plt.plot(t, u[1])
     plt.xlabel('Time t [sec]')
     plt.ylabel('$r\delta$ [rad]')
-    plt.tight_layout()
+    plt.tight_layout()  #自动调整
 
 #
 # To find a trajectory from an initial state $x_0$ to a final state $x_\text{f}$ in time $T_\text{f}$ we solve a
@@ -168,7 +169,7 @@ plot_vehicle_lanechange(traj1)
 
 # ## Change of basis function
 # ##
-bezier = fs.BezierFamily(8)
+bezier = fs.BezierFamily(8)  # 创建阶数8的多项式基础
 
 # Find a trajectory between the initial condition and the final condition
 traj2 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=bezier)
@@ -181,7 +182,10 @@ plot_vehicle_lanechange(traj2)
 # ###
 timepts = np.linspace(0, Tf, 12)
 poly = fs.PolyFamily(8)
+# Create quadratic cost function
+# Returns a quadratic cost function that can be used for an optimal control problem.
 traj_cost = opt.quadratic_cost(vehicle_flat, np.diag([0, 0.1, 0]), np.diag([0.1, 10]), x0=xf, u0=uf)
+# 返回由约束类型和参数值组成的元组
 constraints = [opt.input_range_constraint(vehicle_flat, [8, -0.1], [12, 0.1])]
 
 # Find a trajectory between the initial condition and the final condition
