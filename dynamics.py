@@ -10,9 +10,6 @@ import control.optimal as opt
 ct.use_fbs_defaults()
 
 
-
-
-
 # ## Vehicle steering dynamics
 # ##
 def vehicle_update(t, x, u, params):
@@ -22,14 +19,14 @@ def vehicle_update(t, x, u, params):
     maxsteer = params.get('maxsteer', 0.5)  # max steering angle (rad)
 
     # Saturate the steering input
-    delta = np.clip(u[1], -maxsteer, maxsteer)
-    alpha = np.arctan2(a * np.tan(delta), b)
+    delta = np.clip(u[1], -maxsteer, maxsteer)  #设置饱和值
+    alpha = np.arctan2(a * np.tan(delta), b)  #计算alpha
 
     # Return the derivative of the state
     return np.array([
         u[0] * np.cos(x[2] + alpha),  # xdot = cos(theta + alpha) v
         u[0] * np.sin(x[2] + alpha),  # ydot = sin(theta + alpha) v
-        (u[0] / b) * np.tan(delta)  # thdot = v/l tan(phi)
+        (u[0] / b) * np.tan(delta)  # thdot = v/b tan(delta)#
     ])
 
 
