@@ -118,10 +118,10 @@ def plot_vehicle_lanechange(traj):
     plt.plot([-4, -4], [0, x[0, -1]], 'k-', linewidth=1)
     plt.plot([0, 0], [0, x[0, -1]], 'k--', linewidth=1)
     plt.plot([4, 4], [0, x[0, -1]], 'k-', linewidth=1)
-    plt.axis([-10, 10, -5, x[0, -1] + 5])
+    plt.axis([-10, 10, -5, x[0, -1] + 5])  # 轴限制，画大马路用的
 
     # Time traces of the state and input
-    plt.subplot(2, 4, 3)  #2行3列用索引3
+    plt.subplot(2, 4, 3)  # 2行4列用索引3
     plt.plot(t, x[1])
     plt.ylabel('y [m]')
 
@@ -139,7 +139,7 @@ def plot_vehicle_lanechange(traj):
     plt.plot(t, u[1])
     plt.xlabel('Time t [sec]')
     plt.ylabel('$r\delta$ [rad]')
-    plt.tight_layout()  #自动调整
+    plt.tight_layout()  # 自动调整
 
 #
 # To find a trajectory from an initial state $x_0$ to a final state $x_\text{f}$ in time $T_\text{f}$ we solve a
