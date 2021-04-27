@@ -44,9 +44,6 @@ vehicle = ct.NonlinearIOSystem(
     inputs=('v', 'delta'), outputs=('x', 'y'), params=vehicle_params)
 
 
-
-
-
 # ## Vehicle driving on a curvy road (Figure 8.6a)
 # ##用到动态模型
 # System parameters
@@ -54,8 +51,9 @@ wheelbase = vehicle_params['wheelbase']  # coming from part1
 v0 = vehicle_params['velocity']  # Dictionary parameters membership key
 
 # Control inputs
-T_curvy = np.linspace(0, 7, 500)
-v_curvy = v0 * np.ones(T_curvy.shape)
+T_curvy = np.linspace(0, 7, 500)  # 等差数列 样本数据量500，0-Tf
+v_curvy = v0 * np.ones(T_curvy.shape)  # shape=500  ones=500个1乘以v0
+# 0.1*sinT*cos4T+0.0025*sinT*pi/7
 delta_curvy = 0.1 * np.sin(T_curvy) * np.cos(4 * T_curvy) + 0.0025 * np.sin(T_curvy * np.pi / 7)
 u_curvy = [v_curvy, delta_curvy]
 X0_curvy = [0, 0.8, 0]
@@ -63,6 +61,7 @@ X0_curvy = [0, 0.8, 0]
 # Simulate the system + estimator
 t_curvy, y_curvy, x_curvy = ct.input_output_response(
     vehicle, T_curvy, u_curvy, X0_curvy, params=vehicle_params, return_x=True)
+
 
 # Configure matplotlib plots to be a bit bigger and optimize layout
 plt.figure(figsize=[9, 4.5])
