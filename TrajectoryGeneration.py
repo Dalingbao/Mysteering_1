@@ -21,7 +21,7 @@ def vehicle_update(t, x, u, params):
     return np.array([
         u[0] * np.cos(x[2] + alpha),  # xdot = cos(theta + alpha) v
         u[0] * np.sin(x[2] + alpha),  # ydot = sin(theta + alpha) v
-        (u[0] / b) * np.tan(delta)  # thdot = v/b tan(delta)#
+        (u[0] / b) * np.tan(delta)  # thdot = v/b tan(delta)
     ])
 
 
