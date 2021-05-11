@@ -174,8 +174,8 @@ T = np.linspace(0, 10, 600)
 yref = 1*np.sin(T)
 
 # Set up a figure for plotting the results
-mpl.figure(figsize=[12, 5])
-mpl.subplot(1, 2, 1)
+mpl.figure(figsize=[9, 4.5])
+mpl.subplot(1, 2, 2)
 
 # Plot the reference trajectory for the y position
 # mpl.plot([0, 10], [yref, yref], 'k--')
@@ -201,13 +201,32 @@ for vref in [8, 10, 12]:
 # Add axis labels
 mpl.xlabel('Time (s)')
 mpl.ylabel('x vel (m/s)')
-# mpl.legend((v_line, y_line), ('v', 'y'), loc='center right', frameon=False)
+mpl.legend((v_line, ), ('v', ), loc=4, frameon=False)
 
 
-mpl.subplot(1, 2, 2)
-mpl.plot(T, yref, 'k--')
-y_line, = mpl.plot(tout, yout[y_index, :], 'r')  # lateral position
-mpl.xlabel('Time (s)')
-mpl.ylabel('y pos (m)')
+mpl.subplot(1, 4, 2)
+mpl.plot([-1.5, -1.5], [0, 10], 'k-', linewidth=1)
+mpl.plot([0, 0], [0, 10], 'k--', linewidth=1)
+mpl.plot([1.5, 1.5], [0, 10], 'k-', linewidth=1)
+mpl.axis([-3, 3, -1, 11])  # 轴限制，画大马路用的
+
+mpl.plot(yref, T, 'k--')
+
+for vref in [8, 10, 12]:
+    # Simulate the closed loop controller response
+    tout, yout = ct.input_output_response(
+        steering, T, [vref * np.ones(len(T)), yref * np.ones(len(T))])
+
+    # Plot the reference speed
+    # mpl.plot([0, 10], [vref, vref], 'k--')
+
+    # Plot the system output
+    y_line, = mpl.plot(yout[y_index, :], tout, 'r')  # lateral position
+    # v_line, = mpl.plot(tout, yout[v_index, :], 'b')  # vehicle velocity
+
+
+mpl.ylabel('x pos (m)')
+mpl.xlabel('y pos (m)')
+mpl.legend((y_line,), ('y',), loc=4, frameon=False)
 
 mpl.show()

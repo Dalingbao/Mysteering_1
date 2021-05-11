@@ -169,14 +169,17 @@ steering = ct.InterconnectedSystem(
 )
 
 # Set up the simulation conditions
-yref = 1
-T = np.linspace(0, 5, 100)
+# yref = 1
+T = np.linspace(0, 10, 600)
+yref = 1*np.sin(T)
 
 # Set up a figure for plotting the results
-mpl.figure()
+mpl.figure(figsize=[12, 5])
+mpl.subplot(1, 2, 1)
 
 # Plot the reference trajectory for the y position
-mpl.plot([0, 5], [yref, yref], 'k--')
+# mpl.plot([0, 10], [yref, yref], 'k--')
+mpl.plot(T, yref, 'k--')
 
 # Find the signals we want to plot
 y_index = steering.find_output('y')
@@ -189,7 +192,7 @@ for vref in [8, 10, 12]:
         steering, T, [vref * np.ones(len(T)), yref * np.ones(len(T))])
 
     # Plot the reference speed
-    mpl.plot([0, 5], [vref, vref], 'k--')
+    mpl.plot([0, 10], [vref, vref], 'k--')
 
     # Plot the system output
     y_line, = mpl.plot(tout, yout[y_index, :], 'r')  # lateral position
@@ -199,5 +202,8 @@ for vref in [8, 10, 12]:
 mpl.xlabel('Time (s)')
 mpl.ylabel('x vel (m/s), y pos (m)')
 mpl.legend((v_line, y_line), ('v', 'y'), loc='center right', frameon=False)
+
+
+mpl.subplot(1, 2, 2)
 
 mpl.show()
