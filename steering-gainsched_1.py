@@ -1,12 +1,3 @@
-# steering-gainsched.py - gain scheduled control for vehicle steering
-# RMM, 8 May 2019
-#
-# This file works through Example 1.1 in the "Optimization-Based Control"
-# course notes by Richard Murray (avaliable at http://fbsbook.org, in the
-# optimization-based control supplement).  It is intended to demonstrate the
-# functionality for nonlinear input/output systems in the python-control
-# package.
-
 import numpy as np
 import control as ct
 from cmath import sqrt
@@ -208,7 +199,7 @@ mpl.subplot(1, 4, 2)
 mpl.plot([-1.5, -1.5], [0, 10], 'k-', linewidth=1)
 mpl.plot([0, 0], [0, 10], 'k--', linewidth=1)
 mpl.plot([1.5, 1.5], [0, 10], 'k-', linewidth=1)
-mpl.axis([-3, 3, -1, 11])  # 轴限制，画大马路用的
+mpl.axis([-3, 3, -1, 11])  # 轴限制，画大马路的范围，非智能状态
 
 mpl.plot(yref, T, 'k--')
 

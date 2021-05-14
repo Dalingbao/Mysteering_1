@@ -73,7 +73,8 @@ def control_output(t, x, u, params):
     alpha2 = np.real(latpole1 * latpole2)  #返回实部-1
 
     # Compute and return the control law
-    v = -longpole * ex  # Note: no feedfwd前馈 (to make plot interesting) -(-2)*ex
+    # v = vd-longpole * ex  # Note: no feedfwd前馈 (to make plot interesting) ud-(-2)*ex
+    v = vd-longpole * ex  # Note: no feedfwd前馈 (to make plot interesting) -(-2)*ex
     if vd != 0:
         phi = phid + (alpha1 * l) / vd * ey + (alpha2 * l) / vd * etheta
     else:

@@ -174,8 +174,7 @@ T = np.linspace(0, 10, 600)
 yref = 1*np.sin(T)
 
 # Set up a figure for plotting the results
-mpl.figure(figsize=[12, 5])
-mpl.subplot(1, 2, 1)
+mpl.figure()
 
 # Plot the reference trajectory for the y position
 # mpl.plot([0, 10], [yref, yref], 'k--')
@@ -203,7 +202,5 @@ mpl.xlabel('Time (s)')
 mpl.ylabel('x vel (m/s), y pos (m)')
 mpl.legend((v_line, y_line), ('v', 'y'), loc='center right', frameon=False)
 
-
-mpl.subplot(1, 2, 2)
 
 mpl.show()
