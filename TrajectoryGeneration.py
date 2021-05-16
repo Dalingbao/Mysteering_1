@@ -3,48 +3,9 @@ import matplotlib.pyplot as plt
 import control as ct
 import control.optimal as opt
 ct.use_fbs_defaults()
-
-
-# ## Vehicle steering dynamics p102
-# ##
-def vehicle_update(t, x, u, params):
-    # Get the parameters for the model
-    a = params.get('refoffset', 1.5)  # offset to vehicle reference point
-    b = params.get('wheelbase', 3.)  # vehicle wheelbase
-    maxsteer = params.get('maxsteer', 0.5)  # max steering angle (rad)
-
-    # Saturate the steering input
-    delta = np.clip(u[1], -maxsteer, maxsteer)  #设置饱和值
-    alpha = np.arctan2(a * np.tan(delta), b)  #计算alpha
-
-    # Return the derivative of the state
-    return np.array([
-        u[0] * np.cos(x[2] + alpha),  # xdot = cos(theta + alpha) v
-        u[0] * np.sin(x[2] + alpha),  # ydot = sin(theta + alpha) v
-        (u[0] / b) * np.tan(delta)  # thdot = v/b tan(delta)
-    ])
-
-
-def vehicle_output(t, x, u, params):
-    return x[0:2]
-
-
-# Default vehicle parameters (including nominal velocity)
-vehicle_params = {'refoffset': 1.5, 'wheelbase': 3, 'velocity': 15,
-                  'maxsteer': 0.5}
-
-# Define the vehicle steering dynamics as an input/output system
-vehicle = ct.NonlinearIOSystem(
-    vehicle_update, vehicle_output, states=3, name='vehicle',
-    inputs=('v', 'delta'), outputs=('x', 'y'), params=vehicle_params)
-#
-
-
-# 在前例的基础上衍生出
 import control.flatsys as fs
 
 
-# another dynamics model p289
 # Function to take states, inputs and return the flat flag
 def vehicle_flat_forward(x, u, params={}):
     # Get the parameter values
@@ -96,8 +57,6 @@ def vehicle_flat_reverse(zflag, params={}):
 # 创建FlatSystem对象
 vehicle_flat = fs.FlatSystem(vehicle_flat_forward, vehicle_flat_reverse, inputs=2, states=3)
 
-# In[ ]:
-
 
 # Utility function to plot lane change trajectory
 def plot_vehicle_lanechange(traj):
@@ -146,8 +105,6 @@ def plot_vehicle_lanechange(traj):
 # point-to-point trajectory generation problem.  We also set the initial and final inputs, which sets the vehicle
 # velocity $v$ and steering wheel angle $\delta$ at the endpoints.
 
-# In[ ]:
-
 
 # Define the endpoints of the trajectory
 x0 = [0., 2., 0.]
@@ -163,9 +120,6 @@ poly = fs.PolyFamily(8)
 traj1 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=poly)
 plot_vehicle_lanechange(traj1)
 
-#
-#
-#
 
 # ## Change of basis function
 # ##
@@ -175,8 +129,6 @@ bezier = fs.BezierFamily(8)  # 创建阶数8的多项式基础
 traj2 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=bezier)
 plot_vehicle_lanechange(traj2)
 
-#
-#
 
 # ###  Added cost function
 # ###
