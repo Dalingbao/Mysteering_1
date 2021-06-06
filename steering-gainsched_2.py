@@ -215,9 +215,9 @@ def vehicle_flat_reverse(zflag, params={}):
 vehicle_flat = fs.FlatSystem(vehicle_flat_forward, vehicle_flat_reverse, inputs=2, states=3)
 
 # Define the endpoints of the trajectory
-x0 = [0., 1., 0.]
+x0 = [0., 2., 0.]
 u0 = [10, 0.]
-xf = [75, -1., 0.]
+xf = [750, -2., 0.]
 uf = [10, 0.]
 Tf = xf[0] / uf[0]
 
@@ -233,10 +233,10 @@ T = np.linspace(0, Tf, 600)
 
 x, u = traj1.eval(T)  # 评估子函数
 yref = x[1]
-
+print(yref)
 # Set up a figure for plotting the results
 mpl.figure(figsize=[9, 4.5])
-mpl.subplot(1, 2, 2)
+mpl.subplot(1, 2, 1)
 
 # Plot the reference trajectory for the y position
 # mpl.plot([0, 10], [yref, yref], 'k--')
@@ -265,17 +265,17 @@ mpl.ylabel('x vel (m/s)')
 mpl.legend((v_line, ), ('v', ), loc=4, frameon=False)
 
 
-mpl.subplot(1, 4, 2)
-mpl.plot([-1.5, -1.5], [0, Tf], 'k-', linewidth=1)
+mpl.subplot(1, 4, 3)
+mpl.plot([-4, -4], [0, Tf], 'k-', linewidth=1)
 mpl.plot([0, 0], [0, Tf], 'k--', linewidth=1)
-mpl.plot([1.5, 1.5], [0, Tf], 'k-', linewidth=1)
-mpl.axis([-3, 3, -1, Tf + 1])  # 轴限制，画大马路的范围，智能状态
+mpl.plot([4, 4], [0, Tf], 'k-', linewidth=1)
+mpl.axis([-10, 10, -5, Tf + 5])  # 轴限制，画大马路的范围，智能状态
 
 mpl.plot(yref, T, 'k--')
 
 for vref in [8, 10, 12]:
     # Simulate the closed loop controller response
-    X0 = [0, 1, 0]
+    X0 = [0, 2, 0]
     tout, yout = ct.input_output_response(
         steering, T, [vref * np.ones(len(T)), yref * np.ones(len(T))], X0)
 
@@ -288,8 +288,51 @@ for vref in [8, 10, 12]:
 
 
 mpl.ylabel('x pos (m)')
-mpl.xlabel('y pos (m)')
+mpl.xlabel('(b) y pos (m)')
 # mpl.legend((y_line,), ('y',), loc=4, frameon=False)  #图标
 mpl.tight_layout()  # 自动调整
+
+
+mpl.subplot(1, 4, 4)
+mpl.plot([-4, -4], [0, Tf], 'k-', linewidth=1)
+mpl.plot([0, 0], [0, Tf], 'k--', linewidth=1)
+mpl.plot([4, 4], [0, Tf], 'k-', linewidth=1)
+mpl.axis([-10, 10, -5, Tf + 5])  # 轴限制，画大马路的范围，智能状态
+
+mpl.plot(yref, T, 'k--')
+
+for vref in [8, 10, 12]:
+    # Simulate the closed loop controller response
+    X0 = [0, 2, 0]
+    tout, yout = ct.input_output_response(
+        steering, T, [vref * np.ones(len(T)), yref * np.ones(len(T))], X0)
+
+    # Plot the reference speed
+    # mpl.plot([0, 10], [vref, vref], 'k--')
+
+    # Plot the system output
+    y_line, = mpl.plot(yout[y_index, :], tout, 'r')  # lateral position
+    # v_line, = mpl.plot(tout, yout[v_index, :], 'b')  # vehicle velocity0
+
+
+mpl.ylabel('x pos (m)')
+mpl.xlabel('(c) y pos (m)')
+# mpl.legend((y_line,), ('y',), loc=4, frameon=False)  #图标
+mpl.tight_layout()  # 自动调整
+
+
+mpl.subplot(1, 4, 2)
+mpl.plot([-4, -4], [0, Tf], 'k-', linewidth=1)
+mpl.plot([0, 0], [0, Tf], 'k--', linewidth=1)
+mpl.plot([4, 4], [0, Tf], 'k-', linewidth=1)
+mpl.axis([-10, 10, -5, Tf + 5])  # 轴限制，画大马路的范围，智能状态
+
+mpl.plot(yref, T, 'k--')
+
+mpl.ylabel('x pos (m)')
+mpl.xlabel('(a) y pos (m)')
+# mpl.legend((y_line,), ('y',), loc=4, frameon=False)  #图标
+mpl.tight_layout()  # 自动调整
+
 
 mpl.show()

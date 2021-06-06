@@ -84,6 +84,7 @@ def control_output(t, x, u, params):
     # Compute and return the control law
     v = -longpole * ex  # Note: no feedfwd前馈 (to make plot interesting) -(-2)*ex
     if vd != 0:
+        # phi = phid + (alpha1 * l) / vd * ey + (alpha2 * l) / vd * etheta
         phi = phid + (alpha1 * l) / vd * ey + (alpha2 * l) / vd * etheta
     else:
         # We aren't moving, so don't turn the steering wheel

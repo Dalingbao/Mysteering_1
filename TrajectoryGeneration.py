@@ -70,7 +70,7 @@ def plot_vehicle_lanechange(traj):
     # Plot the trajectory in xy coordinate
     plt.subplot(1, 4, 2)
     plt.plot(x[1], x[0])
-    plt.xlabel('y [m]')
+    plt.xlabel('(a) y [m]')
     plt.ylabel('x [m]')
 
     # Add lane lines and scale the axis
@@ -83,20 +83,22 @@ def plot_vehicle_lanechange(traj):
     plt.subplot(2, 4, 3)  # 2行4列用索引3
     plt.plot(t, x[1])
     plt.ylabel('y [m]')
+    plt.xlabel('(b) Time t [sec]')
 
     plt.subplot(2, 4, 4)
     plt.plot(t, x[2])
     plt.ylabel('theta [rad]')
+    plt.xlabel('(c) Time t [sec]')
 
     plt.subplot(2, 4, 7)
     plt.plot(t, u[0])
-    plt.xlabel('Time t [sec]')
+    plt.xlabel('(d) Time t [sec]')
     plt.ylabel('v [m/s]')
     # plt.axis([0, t[-1], u0[0] - 1, uf[0] + 1])
 
     plt.subplot(2, 4, 8)
     plt.plot(t, u[1])
-    plt.xlabel('Time t [sec]')
+    plt.xlabel('(e) Time t [sec]')
     plt.ylabel('$r\delta$ [rad]')
     plt.tight_layout()  # 自动调整
 
@@ -114,7 +116,7 @@ uf = [15, 0.]
 Tf = xf[0] / uf[0]
 
 # Define a set of basis functions to use for the trajectories
-poly = fs.PolyFamily(8)
+poly = fs.PolyFamily(10)
 
 # Find a trajectory between the initial condition and the final condition
 traj1 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=poly)
