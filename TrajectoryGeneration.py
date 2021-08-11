@@ -102,11 +102,6 @@ def plot_vehicle_lanechange(traj):
     plt.ylabel('$r\delta$ [rad]')
     plt.tight_layout()  # 自动调整
 
-#
-# To find a trajectory from an initial state $x_0$ to a final state $x_\text{f}$ in time $T_\text{f}$ we solve a
-# point-to-point trajectory generation problem.  We also set the initial and final inputs, which sets the vehicle
-# velocity $v$ and steering wheel angle $\delta$ at the endpoints.
-
 
 # Define the endpoints of the trajectory
 x0 = [0., 2., 0.]
@@ -116,7 +111,7 @@ uf = [15, 0.]
 Tf = xf[0] / uf[0]
 
 # Define a set of basis functions to use for the trajectories
-poly = fs.PolyFamily(10)
+poly = fs.PolyFamily(6)
 
 # Find a trajectory between the initial condition and the final condition
 traj1 = fs.point_to_point(vehicle_flat, Tf, x0, u0, xf, uf, basis=poly)

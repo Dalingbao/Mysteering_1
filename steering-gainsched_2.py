@@ -6,21 +6,7 @@ import control.optimal as opt
 ct.use_fbs_defaults()
 import control.flatsys as fs
 
-#
-# Vehicle steering dynamics
-#
-# The vehicle dynamics are given by a simple bicycle model.  We take the state
-# of the system as (x, y, theta) where (x, y) is the position of the vehicle
-# in the plane and theta is the angle of the vehicle with respect to
-# horizontal.  The vehicle input is given by (v, phi) where v is the forward
-# velocity of the vehicle and phi is the angle of the steering wheel.  The
-# model includes saturation of the vehicle steering angle.
-#
-# System state: x, y, theta
-# System input: v, phi
-# System output: x, y
-# System parameters: wheelbase, maxsteer
-#
+
 def vehicle_update(t, x, u, params):
     # Get the parameters for the model
     l = params.get('wheelbase', 3.)  # vehicle wheelbase
@@ -47,19 +33,7 @@ vehicle = ct.NonlinearIOSystem(
     inputs=('v', 'phi'),
     outputs=('x', 'y', 'theta'))
 
-#
-# Gain scheduled controller
-#
-# For this system we use a simple schedule on the forward vehicle velocity and
-# place the poles of the system at fixed values.  The controller takes the
-# current vehicle position and orientation plus the velocity velocity as
-# inputs, and returns the velocity and steering commands.
-#
-# System state: none
-# System input: ex, ey, etheta, vd, phid             u[]
-# System output: v, phi
-# System parameters: longpole, latpole1, latpole2
-#
+
 def control_output(t, x, u, params):
     # Get the controller parameters
     longpole = params.get('longpole', -2.)
@@ -94,19 +68,6 @@ controller = ct.NonlinearIOSystem(
 )
 
 
-#
-# Reference trajectory subsystem
-#
-# The reference trajectory block generates a simple trajectory for the system
-# given the desired speed (vref) and lateral position (yref).  The trajectory
-# consists of a straight line of the form (vref * t, yref, 0) with nominal
-# input (vref, 0).
-#
-# System state: none
-# System input: vref, yref
-# System output: xd, yd, thetad, vd, phid
-# System parameters: none
-#
 def trajgen_output(t, x, u, params):
     vref, yref = u
     return np.array([vref * t, yref, 0, vref, 0])
@@ -118,24 +79,6 @@ trajgen = ct.NonlinearIOSystem(
     inputs=('vref', 'yref'),
     outputs=('xd', 'yd', 'thetad', 'vd', 'phid'))
 
-#
-# System construction
-#
-# The input to the full closed loop system is the desired lateral position and
-# the desired forward velocity.  The output for the system is taken as the
-# full vehicle state plus the velocity of the vehicle.  The following diagram
-# summarizes the interconnections:
-#
-#                        +---------+       +---------------> v
-#                        |         |       |
-# [ yref ]               |         v       |
-# [      ] ---> trajgen -+-+-> controller -+-> vehicle -+-> [x, y, theta]
-# [ vref ]                 ^                            |
-#                          |                            |
-#                          +----------- [-1] -----------+
-#
-# We construct the system using the InterconnectedSystem constructor and using
-# signal labels to keep track of everything.
 
 steering = ct.InterconnectedSystem(
     # List of subsystems
@@ -235,12 +178,8 @@ x, u = traj1.eval(T)  # 评估子函数
 yref = x[1]
 print(yref)
 # Set up a figure for plotting the results
-mpl.figure(figsize=[9, 4.5])
-mpl.subplot(1, 2, 1)
-
-# Plot the reference trajectory for the y position
-# mpl.plot([0, 10], [yref, yref], 'k--')
-# mpl.plot(T, yref, 'k--')
+mpl.figure()
+mpl.axis([0, 10, 0, 13])
 
 # Find the signals we want to plot
 y_index = steering.find_output('y')
@@ -264,6 +203,7 @@ mpl.xlabel('Time (s)')
 mpl.ylabel('x vel (m/s)')
 mpl.legend((v_line, ), ('v', ), loc=4, frameon=False)
 
+mpl.figure(figsize=[9, 4.5])
 
 mpl.subplot(1, 4, 3)
 mpl.plot([-4, -4], [0, Tf], 'k-', linewidth=1)
